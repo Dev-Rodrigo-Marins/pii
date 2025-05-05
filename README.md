@@ -41,7 +41,10 @@ Renomeie o arquivo .env.example para .env:
 ```bash 
 copy .env.example .env
 ```
-
+Gere as tabelas no banco de dados:
+```bash 
+php artisan migrate
+```
 Gere a chave da aplicação:
 ```bash 
 php artisan key:generate
