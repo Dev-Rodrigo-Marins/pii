@@ -39,12 +39,13 @@ npm run build
 Renomeie o arquivo .env.example para .env:
 
 ```bash 
-cp .env.example .env
+copy .env.example .env
 ```
 
 Gere a chave da aplicação:
+```bash 
 php artisan key:generate
-
+```
 ### 🔗 5. Crie o link simbólico para o diretório de storage
 ```bash 
 php artisan storage:link
