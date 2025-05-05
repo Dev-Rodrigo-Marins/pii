@@ -26,7 +26,7 @@ Acesse o diretório do projeto e execute:
 
 ```bash 
 composer install
-composer require laravel/breeza --dev
+composer require laravel/breeze --dev
 php artisan breeze:install
 ```
 
