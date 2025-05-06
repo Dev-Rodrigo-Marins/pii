@@ -26,8 +26,6 @@ Acesse o diretório do projeto e execute:
 
 ```bash 
 composer install
-composer require laravel/breeze --dev
-php artisan breeze:install
 ```
 
 ### 📦 3. Instale e compile os assets JavaScript
