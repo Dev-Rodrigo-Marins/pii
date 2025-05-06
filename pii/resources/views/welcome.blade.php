@@ -1,34 +1,6 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Minha Aplicação') }}</title>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: #f7fafc;
-        }
-        .logo-container {
-            max-width: 200px;
-            margin: 0 auto 2rem;
-        }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="min-h-screen flex flex-col items-center justify-center p-6">
-        <!-- Seu Logo - Substitua pelo seu -->
-        <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo da Aplicação" class="w-full h-auto">
-        </div>
-
+<x-guest-layout>
+    <html>
+        <body>
         <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
             <!-- Abas de Login/Registro -->
             <div class="flex border-b">
@@ -164,4 +136,4 @@
         });
     </script>
 </body>
-</html>
+</x-guest-layout>
