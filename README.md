@@ -70,7 +70,39 @@ Usuário padrão:
 ### 🌐 8. Acesse o projeto no navegador
 Abra o navegador e acesse:
 ```bash 
-http://localhost/seu-repositorio/public
+http://localhost/pii/public
+```
+## ✉️ Configuração de E-mail com Mailtrap
+
+Este projeto utiliza o recurso de verificação de e-mail do Laravel. Para que isso funcione corretamente em ambiente de desenvolvimento, recomendamos o uso do [Mailtrap](https://mailtrap.io), uma ferramenta gratuita para captura de e-mails de teste.
+
+### ✅ Passos para configurar o Mailtrap
+
+1. **Crie uma conta gratuita no Mailtrap:**
+   - Acesse: [https://mailtrap.io](https://mailtrap.io)
+   - Crie uma conta e acesse o painel.
+
+2. **Crie uma inbox:**
+   - No painel do Mailtrap, clique em **Inboxes** > **Add Inbox**
+   - Dê um nome (ex: `Laravel Octos`)
+
+3. **Copie os dados SMTP:**
+   - Clique na inbox criada
+   - Vá até a aba **SMTP Settings**
+   - Selecione a integração **Laravel 8+**
+   - Copie os dados SMTP exibidos
+
+4. **Configure o arquivo `.env` do projeto:**
+
+```
+   MAIL_MAILER=smtp
+   MAIL_HOST=sandbox.smtp.mailtrap.io
+   MAIL_PORT=2525
+   MAIL_USERNAME=SEU_USERNAME_AQUI
+   MAIL_PASSWORD=SUA_SENHA_AQUI
+   MAIL_ENCRYPTION=null
+   MAIL_FROM_ADDRESS=nao-responder@octos.com
+   MAIL_FROM_NAME="Cadastro Octos"
 ```
 
 ### 🛠️ Dica de desenvolvimento
@@ -78,6 +110,7 @@ Durante o desenvolvimento, para recarregamento automático de estilos/scripts co
 ```bash 
 npm run dev
 ```
+
 
 👤 Autor Rodrigo Marins
 
