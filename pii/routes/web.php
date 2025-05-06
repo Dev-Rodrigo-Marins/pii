@@ -1,36 +1,130 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ArquivoController;
+namespace App\Http\Controllers;
 
+use App\Models\Arquivo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+class ArquivoController extends Controller
+{
+    public function index()
+    {
+        $arquivos = Arquivo::where('user_id', auth()->id())
+                          ->orderBy('created_at', 'desc')
+                          ->paginate(2);
+        
+        return view('listararquivo', compact('arquivos'));
+    }
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    /**
+     * Mostrar formulário de upload
+     */
+    public function create()
+    {
+        return view('enviararquivo');
+    }
 
-Route::get('/enviararquivo', [ArquivoController::class, 'create'])->middleware(['auth','verified'])->name('enviararquivo');
-Route::post('/arquivos', [ArquivoController::class, 'store'])->name('arquivos.store');
+    /**
+     * Processar upload de arquivo
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'arquivo' => 'required|string|max:255',
+            'categoria' => 'required|string|max:255',
+            'anexo' => 'required|file|mimes:pdf|max:10240',
+        ]);
 
-Route::get('arquivos/{id}/download', [ArquivoController::class, 'download'])->name('arquivos.download');
+        try {
+            $caminho = $request->file('anexo')->store('arquivos', 'public'); 
 
-Route::get('arquivos/{id}/edit', [ArquivoController::class, 'edit'])->name('arquivos.edit');
+            Arquivo::create([
+                'user_id' => auth()->id(),
+                'arquivo' => $request->arquivo,
+                'categoria' => $request->categoria,
+                'anexo' => $caminho
+            ]);
 
-Route::delete('arquivos/{id}', [ArquivoController::class, 'destroy'])->name('arquivos.destroy');
+            return redirect()->route('enviararquivo')->with('success', 'Arquivo enviado com sucesso!');
 
+        } catch (\Exception $e) {
+            \Log::error('Erro no upload: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao enviar arquivo: ' . $e->getMessage());
+        }
+    }
 
-// Rota correta para listar arquivos (usando o controller)
-Route::get('/listararquivo', [ArquivoController::class, 'index'])->middleware(['auth','verified'])->name('listararquivo');
+    /**
+     * Download de arquivo
+     */
+    public function download($id)
+    {
+        $arquivo = Arquivo::where('user_id', auth()->id())->findOrFail($id);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        if (!Storage::disk('public')->exists($arquivo->anexo)) {
+            abort(404);
+        }
 
-});
+        return Storage::disk('public')->download(
+            $arquivo->anexo, 
+            $arquivo->arquivo . '.pdf'
+        );
+    }
 
-require __DIR__.'/auth.php';
+    /**
+     * Atualizar arquivo
+     */
+    public function update(Request $request, $id)
+    {
+        $arquivo = Arquivo::where('user_id', auth()->id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'arquivo' => 'required|string|max:255',
+            'categoria' => 'required|string|max:255',
+            'anexo' => 'nullable|file|mimes:pdf|max:10240',
+        ]);
+
+        $dados = $request->only(['arquivo', 'categoria']);
+
+        if ($request->hasFile('anexo')) {
+            // Remove o arquivo antigo do disco corretamente
+            if ($arquivo->anexo && Storage::disk('public')->exists($arquivo->anexo)) {
+                Storage::disk('public')->delete($arquivo->anexo);
+            }
+
+            $caminho = $request->file('anexo')->store('arquivos', 'public');
+            $dados['anexo'] = $caminho;
+        }
+
+        $arquivo->update($dados);
+
+        return redirect()->route('arquivos.index')
+                        ->with('success', 'Arquivo atualizado com sucesso!');
+    }
+
+    /**
+     * Excluir arquivo
+     */
+    public function destroy($id)
+    {
+        $arquivo = Arquivo::where('user_id', auth()->id())->findOrFail($id);
+
+        if ($arquivo->anexo && Storage::disk('public')->exists($arquivo->anexo)) {
+            Storage::disk('public')->delete($arquivo->anexo);
+        }
+
+        $arquivo->delete();
+
+        return redirect()->route('listararquivo')
+                        ->with('success', 'Arquivo excluído com sucesso!');
+    }
+
+    /**
+     * Mostrar formulário de edição
+     */
+    public function edit($id)
+    {
+        $arquivo = Arquivo::where('user_id', auth()->id())->findOrFail($id);
+        return view('editararquivo', compact('arquivo'));
+    }
+}
